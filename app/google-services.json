@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "708815662870",
+    "project_id": "whatsclone-795bd",
+    "storage_bucket": "whatsclone-795bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:708815662870:android:9b1ccfcb46d1841f512a37",
+        "android_client_info": {
+          "package_name": "com.vdemelo.whatsclone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "708815662870-47g4plj87pq3q6hhv1j7h36do2i9nhis.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDb9NRcb5MPsi0HNnHTZWj74F-7hAPSyBo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "708815662870-47g4plj87pq3q6hhv1j7h36do2i9nhis.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
