@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.vdemelo.whatsclone.utils.Constants
 import kotlinx.android.synthetic.main.activity_cadastro.*
 
 class CadastroActivity : AppCompatActivity() {
@@ -43,7 +45,32 @@ class CadastroActivity : AppCompatActivity() {
                     auth.currentUser!!.sendEmailVerification().addOnCompleteListener{ envioEmail ->
                         if (envioEmail.isSuccessful){
 
-                            sucessoCadastro()
+                            val db = FirebaseFirestore.getInstance()
+
+                            val usuario = hashMapOf(
+                                "foto" to Constants.URL_DEFAULT_PROFILE_PHOTO,
+                                "nome" to edtNomeCadastro.text.toString(),
+                                "email" to auth.currentUser!!.email
+                            )
+
+
+                            db.collection("usuarios")
+                                .document(auth.currentUser!!.uid)
+                                .set(usuario)
+                                .addOnCompleteListener {
+
+                                    sucessoCadastro()
+
+                                }.addOnFailureListener {
+
+                                    auth.currentUser!!.delete().addOnCompleteListener {
+
+                                        erroCadastro(envioEmail.exception?.message!!)
+                                        cadastroCarregando(false)
+
+                                    }
+
+                                }
 
                         }else{
 

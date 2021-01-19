@@ -14,7 +14,9 @@ class PerfilFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        return inflater.inflate(R.layout.fragment_perfil, container, false)
+        val view = inflater.inflate(R.layout.fragment_perfil, container, false)
+
+        return view
     }
 
     companion object {
