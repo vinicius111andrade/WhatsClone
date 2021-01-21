@@ -1,6 +1,7 @@
 package com.vdemelo.whatsclone
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -8,6 +9,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import androidx.viewpager.widget.ViewPager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -23,6 +25,7 @@ class InicioActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         supportActionBar?.hide()
         setContentView(R.layout.activity_inicio)
 
@@ -52,12 +55,12 @@ class InicioActivity : AppCompatActivity() {
 
     private fun loadUsuario() {
 
-        this.db.collection("usuario")
+        this.db.collection("usuarios")
             .document(this.auth.currentUser!!.uid)
             .get()
-            .addOnSuccessListener { query ->
+            .addOnSuccessListener { resultado ->
 
-                this.usuarioLogado = query
+                this.usuarioLogado = resultado
                 iniciarInterface()
 
             }

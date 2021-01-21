@@ -83,7 +83,6 @@
                 android:layout_toStartOf="@+id/imgBtnEditarNome"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="Vinicius Andrade"
                 android:textColor="@color/fontBlack"
                 android:textSize="17sp" />
 
@@ -128,7 +127,6 @@
                 android:layout_toStartOf="@+id/imgBtnEditarEmail"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="email@gmail.com"
                 android:textColor="@color/fontBlack"
                 android:textSize="17sp" />
 
