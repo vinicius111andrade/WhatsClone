@@ -50,12 +50,14 @@ class MainActivity : AppCompatActivity() {
                     } else {
 
                         Toast.makeText(this, "Autenticação falhou. Verifique os campos incorretos", Toast.LENGTH_LONG).show()
+                        loginCarregando(false)
 
                     }
                 }
             } else {
 
                 Toast.makeText(this, "Verifique os campos incorretos", Toast.LENGTH_LONG).show()
+                loginCarregando(false)
 
             }
         }
