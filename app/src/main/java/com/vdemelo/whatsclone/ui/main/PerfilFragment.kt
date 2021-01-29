@@ -1,7 +1,10 @@
  package com.vdemelo.whatsclone.ui.main
 
+import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -9,10 +12,14 @@ import android.view.View.inflate
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import com.google.android.gms.tasks.Task
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.UploadTask
 import com.squareup.picasso.Picasso
 import com.vdemelo.whatsclone.InicioActivity
 import com.vdemelo.whatsclone.MainActivity
@@ -26,10 +33,12 @@ import kotlinx.android.synthetic.main.bottom_sheet_edit_name.view.btnCancelar
 import kotlinx.android.synthetic.main.bottom_sheet_edit_password.view.*
 import kotlinx.android.synthetic.main.fragment_perfil.*
 import kotlinx.android.synthetic.main.fragment_perfil.view.*
+import java.io.ByteArrayOutputStream
 
  class PerfilFragment : Fragment() {
 
      val REQUISICAO_FOTO_GALERIA = 101
+     val REQUISICAO_FOTO_CAMERA = 102
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -90,12 +99,118 @@ import kotlinx.android.synthetic.main.fragment_perfil.view.*
              val intent = Intent()
              intent.type = "image/*"
              intent.action = Intent.ACTION_GET_CONTENT
-             startActivityForResult(intent, REQUISICAO_FOTO_GALERIA)
+             startActivityForResult(
+                 Intent.createChooser(intent, "Selecionar foto"),
+                 REQUISICAO_FOTO_GALERIA
+             )
              dialog.dismiss()
 
          }
 
+         btnSheetLayout.imgBtnCamera.setOnClickListener {
+
+             Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+                 takePictureIntent.resolveActivity(activity!!.packageManager)?.also {
+                     startActivityForResult(takePictureIntent, REQUISICAO_FOTO_CAMERA)
+                 }
+             }
+
+         }
+
          dialog.show()
+
+     }
+
+     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+         super.onActivityResult(requestCode, resultCode, data)
+
+         if (requestCode == REQUISICAO_FOTO_GALERIA || requestCode == REQUISICAO_FOTO_CAMERA) {
+
+             val referenciaStorage = FirebaseStorage.getInstance().reference
+
+             val referenciaArquivo = referenciaStorage.child (
+                 "imagens.perfil/"
+                         + (activity as InicioActivity).auth.currentUser?.uid
+                         + "/"
+                         + System.currentTimeMillis().toString()
+             )
+
+             when (requestCode) {
+
+                 REQUISICAO_FOTO_CAMERA -> {
+
+                     if (resultCode == RESULT_OK) {
+
+                         val imagemBitmap = data?.extras?.get("data") as Bitmap
+                         val baos = ByteArrayOutputStream()
+                         imagemBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                         val arquivo = baos.toByteArray()
+
+                         val tarefaUploadArquivo = referenciaArquivo.putBytes(arquivo)
+                             tarefaUploadArquivo.addOnCompleteListener { upload ->
+                                 trataUploadFoto(upload, referenciaArquivo)
+                             }
+                     }
+                 }
+
+                 REQUISICAO_FOTO_GALERIA -> {
+
+                     if (data?.data != null) {
+
+                         val arquivo = data.data
+                         val tarefaUploadAquivo = referenciaArquivo.putFile(arquivo!!)
+
+                         tarefaUploadAquivo.addOnCompleteListener { upload ->
+                             trataUploadFoto(upload, referenciaArquivo)
+                             }
+                     }
+                 }
+
+             }
+
+         }
+
+     }
+
+     private fun trataUploadFoto(
+         upload: Task<UploadTask.TaskSnapshot>,
+         referenciaArquivo: StorageReference
+     ) {
+
+         if (upload.isSuccessful) {
+
+             referenciaArquivo.downloadUrl.addOnCompleteListener { uri ->
+
+                 updateImagemPerfil(uri.toString())
+
+             }.addOnFailureListener { excecao ->
+
+                 Toast.makeText(
+                     activity,
+                     "Falha ao realizar operação. Motivo: " + excecao.message,
+                     Toast.LENGTH_LONG
+                 ).show()
+
+             }
+
+         }
+
+     }
+
+     private fun updateImagemPerfil(foto: String) {
+
+         (activity as InicioActivity).db.collection("usuarios")
+             .document((activity as InicioActivity).auth.currentUser!!.uid)
+             .update("foto", foto)
+             .addOnFailureListener { excecao ->
+
+                 Toast.makeText(
+                     activity,
+                     "Falha ao realizar operação. Motivo: " + excecao.message,
+                     Toast.LENGTH_LONG
+                 ).show()
+
+             }
 
      }
 
